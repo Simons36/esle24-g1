@@ -1,0 +1,78 @@
+---
+- name: Install Chrony on all target nodes
+  hosts: targets
+  become: yes  # Use sudo to install packages
+  tasks:
+    - name: Install Chrony
+      apt:
+        name: chrony
+        state: present
+        update_cache: yes  # Update the package cache before installation
+
+    - name: Ensure Chrony service is running
+      service:
+        name: chronyd
+        state: started
+        enabled: yes
+
+- name: Install PTP on all target nodes
+  hosts: targets
+  become: yes  # Use sudo to install packages
+  tasks:
+    - name: Install PTP
+      apt:
+        name: linuxptp
+        state: present
+        update_cache: yes  # Update the package cache before installation
+
+    - name: Ensure PTP service is running
+      service:
+        name: ptp4l
+        state: started
+        enabled: yes
+
+- name: Set ulimits and restart server
+  hosts: targets
+  become: yes  # Run tasks as root
+  tasks:
+    - name: Ensure ulimits are set in /etc/security/limits.conf
+      lineinfile:
+        path: /etc/security/limits.conf
+        state: present
+        line: "{{ item }}"
+      loop:
+        - '* soft  core unlimited'
+        - '* hard  core unlimited'
+        - '* soft  data unlimited'
+        - '* hard  data unlimited'
+        - '* soft  fsize unlimited'
+        - '* hard  fsize unlimited'
+        - '* soft  sigpending 119934'
+        - '* hard  sigpending 119934'
+        - '* soft  memlock 64'
+        - '* hard  memlock 64'
+        - '* soft  rss unlimited'
+        - '* hard  rss unlimited'
+        - '* soft  nofile 1048576'
+        - '* hard  nofile 1048576'
+        - '* soft  msgqueue 819200'
+        - '* hard  msgqueue 819200'
+        - '* soft  stack 8192'
+        - '* hard  stack 8192'
+        - '* soft  cpu unlimited'
+        - '* hard  cpu unlimited'
+        - '* soft  nproc 12000'
+        - '* hard  nproc 12000'
+        - '* soft  locks unlimited'
+        - '* hard  locks unlimited'
+
+    - name: Set pam_limits to ensure limits are enforced on sessions
+      lineinfile:
+        path: /etc/pam.d/common-session
+        state: present
+        line: 'session required pam_limits.so'
+
+    - name: Reboot the server to apply ulimits
+      reboot:
+        reboot_timeout: 300
+        

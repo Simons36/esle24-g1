@@ -1,0 +1,34 @@
+# Masters
+%{ for master in yb_masters ~}
+${ master.id } ansible_host=${ master.public_ip } ansible_user=ubuntu ansible_connection=ssh ansible_host_internal=${ master.private_ip }
+%{ endfor ~}
+
+# Tworkers
+%{ for tworker in yb_tworkers ~}
+${ tworker.id } ansible_host=${ tworker.public_ip } ansible_user=ubuntu ansible_connection=ssh ansible_host_internal=${ tworker.private_ip }
+%{ endfor ~}
+
+# The local deployment host VM
+[osmgmt]
+localhost ansible_connection=local
+
+# Grouping all master nodes together
+[masters]
+%{ for master in yb_masters ~}
+${ master.id }
+%{ endfor ~}
+
+# Group tworkers separately
+[tworkers]
+%{ for tworker in yb_tworkers ~}
+${ tworker.id }
+%{ endfor ~}
+
+# Targets group
+[targets]
+%{ for master in yb_masters ~}
+${ master.id }
+%{ endfor ~}
+%{ for tworker in yb_tworkers ~}
+${ tworker.id }
+%{ endfor ~}

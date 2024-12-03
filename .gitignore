@@ -1,0 +1,11 @@
+gcp-deploy/secrets/*
+!gcp-deploy/secrets/README.md
+.vagrant/
+.terraform*
+.terraform/
+inventory.ini
+.env
+vars.yml
+gcp-deploy/terraform.tfstate
+gcp-deploy/terraform.tfstate.backup
+.vscode

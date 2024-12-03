@@ -1,0 +1,12 @@
+---
+%{ if yb_shard_replication == "true" ~}
+yb_replication_factor_flag: "--replication_factor ${ yb_tserver_count }" # all replica shard replication
+%{ else ~}
+yb_replication_factor_flag: "--replication_factor 1" # no shard replication
+%{ endif  ~}
+
+%{ if yb_transaction_isolation == "read-committed" ~}
+yb_transaction_isolation_flag: "--yb_enable_read_committed_isolation" # Read Committed isolation level
+%{ else ~}
+yb_transaction_isolation_flag: "" # Snapshot isolation level (default)
+%{ endif ~}

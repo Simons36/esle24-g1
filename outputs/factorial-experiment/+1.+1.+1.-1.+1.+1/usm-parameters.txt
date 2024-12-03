@@ -1,0 +1,2 @@
+Total useful lines read: 15
+Lambda: 63.7071200354 Delta: 0.0625591838 Kappa: -0.0000416599
